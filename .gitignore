@@ -1,8 +1,14 @@
+#visual studio files
+.vs/*
+
+# encrypted kraken keys
+*.tbk
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.pyc
 # C extensions
 *.so
 
