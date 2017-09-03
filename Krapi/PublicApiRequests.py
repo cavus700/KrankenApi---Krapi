@@ -80,7 +80,7 @@ class Request_Time(__Public_Request):
 class Request_Assets(__Public_Request):
     """
     Overrides abstract methods from class __Public_Request
-    Creates a request to get the server time
+    Creates a request to get available assets
     
     public request variables:
     asset_list: list with assets as strings to enquire (default all) 
@@ -112,5 +112,54 @@ class Request_Assets(__Public_Request):
             return False
         else:
             self.asset_dict = response['result']
+            return True
+
+
+class Request_Tradable_Asset_Pairs(__Public_Request):
+    """
+    Overrides abstract methods from class __Public_Request
+    Creates a request to get information for asset pairs
+    
+    public request variables:
+    asset_pair_list: list with asset pairs as strings to enquire (default all) 
+    info:            Options: 'info'     - all info (default)
+                             'leverage' - leverage info
+                             'fees'     - fees schedule
+                             'margin'   - margin info
+    public response variables:
+    asset_pairs_dict: dict with asse pair information and asset pair strings as keys
+    """
+    
+    def __init__(self):
+        super(Request_Tradable_Asset_Pairs, self).__init__()
+        self.info = 'info'
+        self.asset_pair_list = ['XXBTZCAD', 'XXMRZUSD', 'XXBTZEUR.d', 'XETHXXBT', 'XXBTZGBP.d', 
+                            'XETHZEUR', 'XXMRXXBT', 'XMLNXETH', 'XETHZJPY', 'XZECZEUR', 
+                            'XREPXXBT', 'GNOXBT', 'XXBTZJPY.d', 'XXRPZUSD', 'XLTCZUSD', 
+                            'XREPXETH', 'XXBTZGBP', 'XETHZUSD', 'EOSXBT', 'XETHZJPY.d', 
+                            'XETHZCAD', 'XETCXXBT', 'XZECZUSD', 'XETHZGBP', 'BCHEUR', 
+                            'XXDGXXBT', 'XXBTZEUR', 'XLTCZEUR', 'XETCXETH', 'XETHZGBP.d', 
+                            'XREPZEUR', 'XXBTZCAD.d', 'XLTCXXBT', 'XXBTZJPY', 'XXMRZEUR', 
+                            'XXBTZUSD.d', 'GNOETH', 'XETHZCAD.d', 'DASHXBT', 'XXLMXXBT', 
+                            'XETCZEUR', 'XMLNXXBT', 'BCHUSD', 'XICNXETH', 'XETHXXBT.d', 
+                            'XXRPXXBT', 'XETHZUSD.d', 'XXRPZEUR', 'EOSETH', 'DASHEUR', 
+                            'XICNXXBT', 'XETCZUSD', 'XETHZEUR.d', 'XZECXXBT', 'DASHUSD', 
+                            'XXBTZUSD', 'BCHXBT', 'USDTZUSD']
+        self.asset_pairs_dict = None
+
+    def get_method(self):
+        return "AssetPairs"
+    
+    def get_dict_data(self):
+        asset_pairs = ''.join([asset + ',' for asset in self.asset_pair_list])
+        asset_pairs = asset_pairs[0:len(asset_pairs)-1]
+        self.dict.update({'info':self.info, 'pair':asset_pairs})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Tradable_Asset_Pairs, self).validate_response(response):
+            return False
+        else:
+            self.asset_pairs_dict = response['result']
             return True
 

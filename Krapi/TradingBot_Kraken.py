@@ -1,6 +1,6 @@
 import sys
 from CredentialMgr import CredentialMgr
-from PublicApiRequests import Request_Time, Request_Assets
+from PublicApiRequests import Request_Time, Request_Assets, Request_Tradable_Asset_Pairs
 from PrivateApiRequests import Request_Balance
 from RequestMgr import Request_Mgr
 import json
