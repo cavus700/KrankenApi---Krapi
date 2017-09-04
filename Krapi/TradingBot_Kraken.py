@@ -1,8 +1,8 @@
 import sys
-from CredentialMgr import CredentialMgr
-from PublicApiRequests import Request_Time, Request_Assets, Request_Tradable_Asset_Pairs
+from CredentialMgr import CredentialMgr 
 from PrivateApiRequests import Request_Balance
 from RequestMgr import Request_Mgr
+from PublicApiRequests import *
 import json
 import KrakenConnector
 
@@ -49,7 +49,6 @@ def private_request():
 def public_request():    
     req_mgr = Request_Mgr(3)
     req = Request_Time()
-
     if not req_mgr.send_request(req):
        if req.has_errors:
             print req.errors

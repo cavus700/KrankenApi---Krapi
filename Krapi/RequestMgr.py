@@ -115,9 +115,10 @@ class Request_Mgr(object):
         # To avoid the 15 minute ban
         if self._current_requests == self._max_requests:
             return None
-
-        with self.__mutex:
-            self._current_requests += 1
+        
+        if request.get_type == 'private' :
+            with self.__mutex:
+                self._current_requests += 1
 
         if request.get_type() == 'private':
             return request.validate_response(self.__connection.query_request(request, self._credentials))
