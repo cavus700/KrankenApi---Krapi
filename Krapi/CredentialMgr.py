@@ -28,19 +28,21 @@ from Crypto.Cipher import AES
 class CredentialMgr(object):
     """
     Encrypts and decrypts kraken api keys and provides credentials for requests
-    
+
     public methods:
-    encrypt_key()        -- encrypts keys for kraken, so they don't have to lie in plain text on your pc (DON'T FORGET THE PASSWORD)
+    encrypt_key()        -- encrypts keys for kraken and kraken_api. Only encrypted keys can be used
+                            So they don't have to lie in plain text on your pc
+                            (DON'T FORGET THE PASSWORD)
     load_credentials()   -- decrypts the credentials from a tbk file
     unload_credentials() -- removes credentials from credential manager
-    get_credentials()    -- return credentials 
+    get_credentials()    -- return credentials
 
     """
 
     def __init__(self):
         self._chunksize = 64*1024
-        self.__apiKey = None
-        self.__privateKey = None
+        self.__api_key = None
+        self.__private_key = None
 
     def load_credentials(self, tbk_file, pwd):
         """
@@ -54,73 +56,74 @@ class CredentialMgr(object):
 
         :return: bool -- True if encryption successfull, Fals else
         """
-        if self.__apiKey == None and self.__privateKey == None:
+        if self.__api_key is None and self.__private_key is None:
             try:
-                self.__apiKey, self.__privateKey = self.__decrypt_keys(in_file=tbk_file, pwd=pwd)
+                self.__api_key, self.__private_key = self.__decrypt_keys(in_file=tbk_file, pwd=pwd)
                 return True
             except:
                 return False
 
-    
+
     def unload_credentials(self):
         """
         removes credentials from credential manager
         """
 
-        self.__apiKey = None
-        self.__privateKey = None
+        self.__api_key = None
+        self.__private_key = None
 
     def get_credentials(self):
         """
         return credentials
 
         :return: tuple with (api_key, privat_key) or None if no credentials were loaded
-        
+
         """
 
-        if self.__apiKey == None or self.__privateKey == None:
+        if self.__api_key is None or self.__private_key is None:
             return None
         else:
-            return (self.__apiKey, self.__privateKey)
+            return (self.__api_key, self.__private_key)
 
     def encrypt_keys(self, in_file, pwd, out_file=None):
-        """ 
+        """
         Encrypts a given file with an AES 256 encryption and creates a .tbk file from it.
         The trading bot needs a tbk file to send private requests
-        
+
         :type in_file: str
         :param in_file: path to the kraken api key.
-                     File has to be in json format like: { "api_key":"keykeykey", "private_key":"secretsecretsecret" }
-        
+                     File has to be in json format like:
+                     { "api_key":"keykeykey", "private_key":"secretsecretsecret" }
+
         :type out_file: str
         :param out_file: path where the tbk file should be saved. Default in the kraken_api folder.
-        
+
         :type pwd: str
         :param pwd: Password used for AES 256 encryption.
-        
+
         :return True if encryption was successfull
 
         :Exception -- If file didn't contain keys in json format
-        
+
         """
 
         if  not os.path.exists(in_file) or not os.access(in_file, os.R_OK):
             raise Exception('Invalid path or can not access the file')
-        
+
 
         ### Validate file ###
-        
-        with open(in_file, 'r') as file:
-            jsonData = file.read()
-            jsonPython = json.loads(jsonData)
+
+        with open(in_file, 'r') as key_file:
+            json_data = key_file.read()
+            json_python = json.loads(json_data)
 
             try:
-                api_key = jsonPython['api_key']
-                private_key = jsonPython['private_key']
+                json_python['api_key']
+                json_python['private_key']
 
             except KeyError:
                 raise Exception('kraken key file has invalid json format')
-        
+
         #####################
 
         if not out_file:
@@ -134,16 +137,16 @@ class CredentialMgr(object):
         else:
             out_file = '.'.join([s for s in out_split[:len(out_split)-1]]) + ".tbk"
 
-        IV = ''.join(chr(random.randint(0, 0xFF)) for i in range(16))
+        iv = ''.join(chr(random.randint(0, 0xFF)) for i in range(16))
         key = hashlib.sha256(pwd).digest()
-        encryptor = AES.new(key, AES.MODE_CBC, IV)
+        encryptor = AES.new(key, AES.MODE_CBC, iv)
         filesize = os.path.getsize(in_file)
 
 
         with open(in_file, 'rb') as infile:
             with open(out_file, 'wb') as outfile:
                 outfile.write(struct.pack('<Q', filesize))
-                outfile.write(IV)
+                outfile.write(iv)
 
                 while True:
                     chunk = infile.read(self._chunksize)
@@ -155,11 +158,11 @@ class CredentialMgr(object):
                     outfile.write(encryptor.encrypt(chunk))
 
         return True
-    
+
     def __decrypt_keys(self, in_file, pwd):
-        """ 
+        """
         Decrypts a given file with an AES 256 encryption and restores the keys for the kraken api.
-        
+
         :type in_file: str
         :param in_file: path to the .tbk file.
 
@@ -167,8 +170,8 @@ class CredentialMgr(object):
         :param pwd: Same password as used for AES 256 encryption.
 
         :return A tuple with (api_key, private_key)
-        
-        :Exception - If decrypted file didn't contain keys in a valid json format ( see encrypt_key() )
+
+        :Exception - If decrypted file didn't contain keys in a valid json format, see encrypt_key()
         """
 
 
@@ -176,9 +179,9 @@ class CredentialMgr(object):
 
         with open(in_file, 'rb') as infile:
             origsize = struct.unpack('<Q', infile.read(struct.calcsize('Q')))[0]
-            IV = infile.read(16)
+            iv = infile.read(16)
             key = hashlib.sha256(pwd).digest()
-            decryptor = AES.new(key, AES.MODE_CBC, IV)
+            decryptor = AES.new(key, AES.MODE_CBC, iv)
 
             with open(out_file, 'wb') as outfile:
                 while True:
@@ -189,18 +192,17 @@ class CredentialMgr(object):
 
                 outfile.truncate(origsize)
 
-        with open(out_file, 'r') as file:
-            jsonData = file.read()
-            jsonPython = json.loads(jsonData)
+        with open(out_file, 'r') as key_file:
+            json_data = key_file.read()
+            json_python = json.loads(json_data)
 
             try:
-                api_key = jsonPython['api_key']
-                private_key = jsonPython['private_key']
+                api_key = json_python['api_key']
+                private_key = json_python['private_key']
                 res = (api_key, private_key)
 
             except KeyError:
                 raise Exception('kraken key file has invalid json format')
-        
-        os.remove(out_file)
-        return res;
 
+        os.remove(out_file)
+        return res

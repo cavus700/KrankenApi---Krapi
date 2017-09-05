@@ -25,7 +25,7 @@ from abc import ABCMeta, abstractmethod
 
 class __Public_Request(Request):
     """
-    Abstract class from which public requests should inherit
+    Abstract class from which public requests should inherit.
 
     public methods:
     get_type(): returns that request is public 
@@ -64,7 +64,7 @@ class __Public_Request(Request):
 
 class Request_Time(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
+    Overrides abstract methods from class __Public_Request.
     Creates a request to get the server time.
     
     public response variables:
@@ -94,8 +94,8 @@ class Request_Time(__Public_Request):
 
 class Request_Assets(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
-    Creates a request to get available assets
+    Overrides abstract methods from class __Public_Request.
+    Creates a request to get available assets.
     
     public request variables:
     asset_list: list with assets as strings to enquire (default all) 
@@ -132,8 +132,8 @@ class Request_Assets(__Public_Request):
 
 class Request_Tradable_Asset_Pairs(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
-    Creates a request to get information for asset pairs
+    Overrides abstract methods from class __Public_Request.
+    Creates a request to get information for asset pairs.
     
     public request variables:
     asset_pair_list: list with asset pairs as strings to enquire (default all) 
@@ -170,8 +170,8 @@ class Request_Tradable_Asset_Pairs(__Public_Request):
 
 class Request_Ticker_Information(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
-    Creates a request to get ticker information
+    Overrides abstract methods from class __Public_Request.
+    Creates a request to get ticker information.
     
     public request variables:
     asset_pair_list: list with asset pairs as strings to enquire ticker information (default all) 
@@ -213,8 +213,8 @@ class Request_Ticker_Information(__Public_Request):
 
 class Request_OHLC_Data(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
-    Creates a request to get OHLC data
+    Overrides abstract methods from class __Public_Request.
+    Creates a request to get OHLC data.
     
     public request variables:
     asset_pair_list: list with asset pairs as strings to enquire OHLC data (default all) 
@@ -257,8 +257,8 @@ class Request_OHLC_Data(__Public_Request):
 
 class Request_Order_Book(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
-    Creates a request to get the order book
+    Overrides abstract methods from class __Public_Request.
+    Creates a request to get the order book.
     
     public request variables:
     asset_pair_list: list with asset pairs to get market depth for  (default all) 
@@ -298,8 +298,8 @@ class Request_Order_Book(__Public_Request):
 
 class Request_Recent_Trades(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
-    Creates a request to get recent trades
+    Overrides abstract methods from class __Public_Request.
+    Creates a request to get recent trades.
     
     public request variables:
     asset_pair_list: list with asset pairs as strings to enquire trade data (default all) 
@@ -340,8 +340,8 @@ class Request_Recent_Trades(__Public_Request):
 
 class Request_Recent_Trades(__Public_Request):
     """
-    Overrides abstract methods from class __Public_Request
-    Creates a request to get spread data for asset pairs
+    Overrides abstract methods from class __Public_Request.
+    Creates a request to get spread data for asset pairs.
     
     public request variables:
     asset_pair_list: list with asset pairs as strings to enquire spread data (default all) 

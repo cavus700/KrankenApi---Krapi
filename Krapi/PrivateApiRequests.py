@@ -25,10 +25,11 @@ from abc import ABCMeta, abstractmethod
 
 class __Private_Request(Request):
     """
-    Abstract class from which private requests should inherit
+    Abstract class from which private requests should inherit.
 
     public methods:
     get_type(): returns that request is public 
+    set_otp():  Sets the One-Time-Password for your private request
 
     abstract methods:
     get_method() - should return the request method as string
@@ -39,6 +40,9 @@ class __Private_Request(Request):
     def get_type(self):
         return "private"
     
+    def set_otp(self, otp):
+        self.dict["otp"] = str(otp)
+
     @abstractmethod
     def get_method(self):
         pass
@@ -49,7 +53,7 @@ class __Private_Request(Request):
 
 class Request_Balance(__Private_Request):
     """
-    Overrides abstract methods from class __Public_Request
+    Overrides abstract methods from class __Private_Request.
     Creates a request to get the account balance.
     
     public response variables:
@@ -60,17 +64,47 @@ class Request_Balance(__Private_Request):
         super(Request_Balance, self).__init__()
         self.balance_dict = {}
     
-    def set_otp(self, otp):
-        self.dict["otp"] = str(otp)
-
     def get_method(self):
         return "Balance"
 
     def get_dict_data(self):
-        return {}
+        return self.dict
 
     def validate_response(self, response):
         if not super(Request_Balance, self).validate_response(response):
+            return False
+        else:
+            self.balance_dict = response['result']
+            return True
+
+
+class Request_Trade_Balance(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to get available trade balance.
+    
+    public request variables:
+    asset_class: currency (default) 
+    base_asset:  base asset used to determine balance (default = ZUSD)
+
+    public response variables:
+    asset_dict: dict with asset information and asset strings as keys
+    """
+    
+    def __init__(self):
+        super(Request_Trade_Balance, self).__init__()
+        self.asset_class = 'currency'
+        self.base_asset  = 'ZUSD'
+        
+    def get_method(self):
+        return "TradeBalance"
+
+    def get_dict_data(self):
+        self.dict.update({'aclass':self.asset_class, 'asset':self.base_asset})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Trade_Balance, self).validate_response(response):
             return False
         else:
             self.balance_dict = response['result']

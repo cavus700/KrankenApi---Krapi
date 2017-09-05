@@ -7,7 +7,7 @@ import json
 import KrakenConnector
 
 def main(argv):
-    public_request()
+    #public_request()
     private_request()
     return
 
@@ -36,7 +36,7 @@ def private_request():
     req = Request_Balance()
 
     if not req_mgr.send_request(req):
-       if req.has_errors:
+        if req.has_errors:
             print req.errors
     else:
         print req.raw_response
