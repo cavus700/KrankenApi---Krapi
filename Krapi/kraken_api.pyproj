@@ -6,7 +6,7 @@
     <ProjectGuid>2f5042ae-05d9-4f18-a164-2eb05dcdb890</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>TradingBot_Kraken.py</StartupFile>
+    <StartupFile>KrapiMain.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -43,7 +43,7 @@
     <Compile Include="RequestMgr.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="TradingBot_Kraken.py" />
+    <Compile Include="KrapiMain.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|2.7" />

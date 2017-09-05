@@ -1,8 +1,8 @@
 import sys
-from CredentialMgr import CredentialMgr 
-from PrivateApiRequests import Request_Balance
+from CredentialMgr import CredentialMgr
 from RequestMgr import Request_Mgr
-from PublicApiRequests import *
+from PublicApiRequests import * 
+from PrivateApiRequests import *
 import json
 import KrakenConnector
 
