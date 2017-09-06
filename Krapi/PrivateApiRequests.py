@@ -262,3 +262,46 @@ class Request_Closed_Orders(__Private_Request):
             self.closed_dict = response['result']['closed']
             self.count = response['result']['count']
             return True
+
+
+class Request_Order_Info(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to query order information.
+    
+    public request variables:
+    trades:   whether or not to include trades in output (optional.  default = false)
+    userref:  restrict results to given user reference id (optional)
+    txid = comma delimited list of transaction ids to query info about (20 maximum)
+
+    public response variables:
+    orders_txid_dict : dict with order information and their txid's as keys.
+                             See Get open orders/Get closed orders
+                          
+    """
+    
+    def __init__(self):
+        super(Request_Order_Info, self).__init__()
+        self.trades = 'false'
+        self.userref  = None
+        self.txid = []
+
+        self.orders_txid_dict = {}
+        
+    def get_method(self):
+        return "QueryOrders"
+
+    def get_dict_data(self):
+        transaction_ids = ''.join([id + ',' for id in self.txid])
+        transaction_ids = transaction_ids[0:len(transaction_ids)-1]
+        self.dict.update({'trades':self.trades, 'txid':transaction_ids})
+        if self.userref is not None:
+            self.dict.update({'userref':self.userref})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Order_Info, self).validate_response(response):
+            return False
+        else:
+            self.orders_txid_dict = response['result']
+            return True

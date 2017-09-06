@@ -7,7 +7,7 @@ import json
 import KrakenConnector
 
 def main(argv):
-    #public_request()
+    public_request()
     private_request()
     return
 

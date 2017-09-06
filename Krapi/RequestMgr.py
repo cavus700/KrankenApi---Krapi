@@ -116,7 +116,7 @@ class Request_Mgr(object):
         if self._current_requests == self._max_requests:
             return None
         
-        if request.get_type == 'private' :
+        if request.get_type() == 'private' :
             with self.__mutex:
                 self._current_requests += 1
 
