@@ -264,7 +264,7 @@ class Request_Closed_Orders(__Private_Request):
             return True
 
 
-class Request_Order_Info(__Private_Request):
+class Request_Specific_Orders(__Private_Request):
     """
     Overrides abstract methods from class __Private_Request.
     Creates a request to query order information.
@@ -281,7 +281,7 @@ class Request_Order_Info(__Private_Request):
     """
     
     def __init__(self):
-        super(Request_Order_Info, self).__init__()
+        super(Request_Specific_Orders, self).__init__()
         self.trades = 'false'
         self.userref  = None
         self.txid = []
@@ -300,8 +300,156 @@ class Request_Order_Info(__Private_Request):
         return self.dict
 
     def validate_response(self, response):
-        if not super(Request_Order_Info, self).validate_response(response):
+        if not super(Request_Specific_Orders, self).validate_response(response):
             return False
         else:
             self.orders_txid_dict = response['result']
+            return True
+
+
+class Request_Trade_History(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to get trade history.
+    
+    public request variables:
+    type:     type of trade  all = all types (default)
+                             any position = any position (open or closed)
+                             closed position = positions that have been closed
+                             closing position = any trade closing all or part of a position
+                             no position = non-positional trades
+    trades:  whether or not to include trades related to position in output (optional.  default = false)
+    start:   starting unix timestamp or trade tx id of results (optional.  exclusive)
+    end:     ending unix timestamp or trade tx id of results (optional.  inclusive)
+    offset:  result offset
+
+
+    public response variables:
+    trades_dict: array of trade info with txid as the key
+    count: amount of available trades info matching criteria
+                    
+    Note: If the trade opened a position addtionial information is available (see official docu) and
+    Unless otherwise stated, costs, fees, prices, and volumes are in the asset pair's scale, not the currency's scale.
+    """
+    
+    def __init__(self):
+        super(Request_Trade_History, self).__init__()
+        self.type = 'any position'
+        self.trades = False
+        self.start = None
+        self.end = None
+        self.offset = 0
+
+        self.trades_dict = {}
+        self.count = 0
+        
+    def get_method(self):
+        return "TradesHistory"
+
+    def get_dict_data(self):
+        self.dict.update({'type':self.type, 'trades':str(self.trades), 'ofs':str(self.offset)})
+        if self.start is not None:
+            self.dict.update({'start':str(self.start)})
+        if self.end is not None:
+            self.dict.update({'end':str(self.end)})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Trade_History, self).validate_response(response):
+            return False
+        else:
+            self.trades_dict = response['result']['trades']
+            self.count = response['result']['count']
+            return True
+
+
+class Request_Specific_Trades(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to get information about specific trades.
+    
+    public request variables:
+    txid = comma delimited list of transaction ids to query info about (20 maximum)
+    trades:   whether or not to include trades in output (optional.  default = false)
+
+    public response variables:
+    trades_txid_dict : dict with trade information and their txid's as keys.
+                             (See Request_Trade_History)
+                          
+    """
+    
+    def __init__(self):
+        super(Request_Specific_Trades, self).__init__()
+        self.trades = 'false'
+        self.txid = []
+
+        self.trades_txid_dict = {}
+        
+    def get_method(self):
+        return "QueryTrades"
+
+    def get_dict_data(self):
+        transaction_ids = ''.join([id + ',' for id in self.txid])
+        transaction_ids = transaction_ids[0:len(transaction_ids)-1]
+        self.dict.update({'txid':transaction_ids, 'trades':self.trades})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Specific_Trades, self).validate_response(response):
+            return False
+        else:
+            self.trades_txid_dict = response['result']
+            return True
+
+
+class Request_Open_Positions(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to get open positions and calculations.
+    
+    public request variables:
+    txid:         comma delimited list of transaction ids to restrict output to
+    calculations: whether or not to include profit/loss calculations (optional.  default = false)
+
+    public response variables:
+    position_txid_dict: dict with position information and their txid's as keys.
+                            ordertxid = order responsible for execution of trade
+                            pair = asset pair
+                            time = unix timestamp of trade
+                            type = type of order used to open position (buy/sell)
+                            ordertype = order type used to open position
+                            cost = opening cost of position (quote currency unless viqc set in oflags)
+                            fee = opening fee of position (quote currency)
+                            vol = position volume (base currency unless viqc set in oflags)
+                            vol_closed = position volume closed (base currency unless viqc set in oflags)
+                            margin = initial margin (quote currency)
+                            value = current value of remaining position (if docalcs requested.  quote currency)
+                            net = unrealized profit/loss of remaining position (if docalcs requested.  quote currency, quote currency scale)
+                            misc = comma delimited list of miscellaneous info
+                            oflags = comma delimited list of order flags
+                            viqc = volume in quote currency
+                          
+    """
+    
+    def __init__(self):
+        super(Request_Open_Positions, self).__init__()
+        self.calculations = 'false'
+        self.txid = []
+
+        self.position_txid_dict = {}
+        
+    def get_method(self):
+        return "OpenPositions"
+
+    def get_dict_data(self):
+        transaction_ids = ''.join([id + ',' for id in self.txid])
+        transaction_ids = transaction_ids[0:len(transaction_ids)-1]
+        self.dict.update({'txid':transaction_ids, 'docalcs':self.calculations})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Open_Positions, self).validate_response(response):
+            return False
+        else:
+            self.trades_txid_dict = response['result']
             return True

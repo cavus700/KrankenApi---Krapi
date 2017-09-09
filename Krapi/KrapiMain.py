@@ -1,10 +1,10 @@
 import sys
+import json
+import KrakenConnector
 from CredentialMgr import CredentialMgr
 from RequestMgr import Request_Mgr
 from PublicApiRequests import * 
 from PrivateApiRequests import *
-import json
-import KrakenConnector
 
 def main(argv):
     public_request()
