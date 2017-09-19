@@ -1,7 +1,7 @@
 import sys
 import json
 import KrakenConnector
-from CredentialMgr import CredentialMgr
+from CredentialMgr import Credential_Mgr
 from RequestMgr import Request_Mgr
 from PublicApiRequests import * 
 from PrivateApiRequests import *
@@ -16,7 +16,7 @@ def main(argv):
 ##################################################################
 
 def private_request():
-    cre_mgr = CredentialMgr()
+    cre_mgr = Credential_Mgr()
     try:
         if not cre_mgr.encrypt_keys(in_file="KrakenKey.txt", pwd="Test"):
             print "Encryption failed"

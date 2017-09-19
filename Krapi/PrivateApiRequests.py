@@ -369,7 +369,7 @@ class Request_Specific_Trades(__Private_Request):
     Creates a request to get information about specific trades.
     
     public request variables:
-    txid = comma delimited list of transaction ids to query info about (20 maximum)
+    txid:     comma delimited list of transaction ids to query info about (20 maximum)
     trades:   whether or not to include trades in output (optional.  default = false)
 
     public response variables:
@@ -452,4 +452,186 @@ class Request_Open_Positions(__Private_Request):
             return False
         else:
             self.trades_txid_dict = response['result']
+            return True
+
+
+class Request_Ledger_Info(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to get ledger information.
+    
+    public request variables:
+    aclass:     asset class (optional):
+                    currency (default)
+    asset_list: list of assets to restrict output to (optional.  default = all)
+    type :      type of ledger to retrieve (optional):
+                    all (default)
+                    deposit
+                    withdrawal
+                    trade
+                    margin
+    start:      starting unix timestamp or ledger id of results (optional.  exclusive)
+    end:        ending unix timestamp or ledger id of results (optional.  inclusive)
+    offset:     result offset
+
+    public response variables:
+    amount:            number of ledger information
+    ledger_info_dict:  dict with ledger information and their ledger id's as keys
+                            <ledger_id> = ledger info
+                                refid = reference id
+                                time = unx timestamp of ledger
+                                type = type of ledger entry
+                                aclass = asset class
+                                asset = asset
+                                amount = transaction amount
+                                fee = transaction fee
+                                balance = resulting balance
+
+    Note: Times given by ledger ids are more accurate than unix timestamps.                     
+    """
+    
+    def __init__(self):
+        super(Request_Ledger_Info, self).__init__()
+        self.aclass = 'currency'
+        self.asset_list = ['BCH', 'ZJPY', 'XICN', 'XLTC', 'EOS', 'ZKRW', 
+                           'GNO', 'XZEC', 'ZGBP', 'XXMR', 'ZUSD', 'XXRP', 
+                           'XXVN', 'ZEUR', 'XMLN', 'XXBT', 'DASH', 'KFEE', 
+                           'XETH', 'XNMC', 'XETC', 'XXDG', 'USDT', 'XDAO', 
+                           'ZCAD', 'XREP', 'XXLM']
+        self.type = 'all'
+        self.start = None
+        self.end = None
+        self.offset = 0
+
+        self.ledger_info_dict = {}
+        self.amount = 0
+        
+    def get_method(self):
+        return "Ledgers"
+
+    def get_dict_data(self):
+        self.dict.update({'aclass':self.aclass})
+        assets = ''.join([asset + ',' for asset in self.asset_list])
+        assets = assets[0:len(assets)-1]
+        self.dict.update({'asset':assets})
+        self.dict.update({'type':str(self.type)})        
+        if self.start is not None:
+            self.dict.update({'start':self.start})
+        if self.end is not None:
+            self.dict.update({'end':self.end})
+        self.dict.update({'ofs':str(self.offset)})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Ledger_Info, self).validate_response(response):
+            return False
+        else:
+            self.amount = response['result']['count']
+            self.ledger_info_dict = response['result']['ledger']
+            return True
+
+
+class Request_Specific_Ledgers(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to get information about specific ledgers.
+    
+    public request variables:
+    id: comma delimited list of transaction ids to query info about (20 maximum)
+
+    public response variables:
+    ledger_id_dict : dict with ledger information and their id's as keys.
+                             (See Request_Ledger_Info)
+                          
+    """
+    
+    def __init__(self):
+        super(Request_Specific_Ledgers, self).__init__()
+        self.id = []
+
+        self.ledger_id_dict = {}
+        
+    def get_method(self):
+        return "QueryLedgers"
+
+    def get_dict_data(self):
+        ledger_ids = ''.join([id + ',' for id in self.id])
+        ledger_ids = ledger_ids[0:len(ledger_ids)-1]
+        self.dict.update({'id':transaction_ids})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Specific_Ledgers, self).validate_response(response):
+            return False
+        else:
+            self.trades_txid_dict = response['result']
+            return True
+
+
+class Request_Trade_Volume(__Private_Request):
+    """
+    Overrides abstract methods from class __Private_Request.
+    Creates a request to get information about specific ledgers.
+    
+    public request variables:
+    asset_pair_list: comma delimited list of asset pairs to get fee info on (optional)
+                        default all
+
+    public response variables:
+    currency: volume currency
+    volume: current discount volume
+    fees: dict of asset pairs and fee tier info
+            fee = current fee in percent
+            minfee = minimum fee for pair (if not fixed fee)
+            maxfee = maximum fee for pair (if not fixed fee)
+            nextfee = next tier's fee for pair (if not fixed fee.  nil if at lowest fee tier)
+            nextvolume = volume level of next tier (if not fixed fee.  nil if at lowest fee tier)
+            tiervolume = volume level of current tier (if not fixed fee.  nil if at lowest fee tier)
+    fees_maker: array of asset pairs and maker fee tier info (if requested) for any pairs on maker/taker schedule
+            fee = current fee in percent
+            minfee = minimum fee for pair (if not fixed fee)
+            maxfee = maximum fee for pair (if not fixed fee)
+            nextfee = next tier's fee for pair (if not fixed fee.  nil if at lowest fee tier)
+            nextvolume = volume level of next tier (if not fixed fee.  nil if at lowest fee tier)
+            tiervolume = volume level of current tier (if not fixed fee.  nil if at lowest fee tier)
+                          
+    """
+    
+    def __init__(self):
+        super(Request_Trade_Volume, self).__init__()
+        self.asset_pair_list = ['XXBTZCAD', 'XXMRZUSD', 'XXBTZEUR', 'XETHXXBT', 'XXBTZGBP', 
+                            'XETHZEUR', 'XXMRXXBT', 'XMLNXETH', 'XETHZJPY', 'XZECZEUR', 
+                            'XREPXXBT', 'GNOXBT', 'XXBTZJPY', 'XXRPZUSD', 'XLTCZUSD', 
+                            'XREPXETH', 'XXBTZGBP', 'XETHZUSD', 'EOSXBT', 'XETHZJPY', 
+                            'XETHZCAD', 'XETCXXBT', 'XZECZUSD', 'XETHZGBP', 'BCHEUR', 
+                            'XXDGXXBT', 'XXBTZEUR', 'XLTCZEUR', 'XETCXETH', 'XETHZGBP', 
+                            'XREPZEUR', 'XXBTZCAD', 'XLTCXXBT', 'XXBTZJPY', 'XXMRZEUR', 
+                            'XXBTZUSD', 'GNOETH', 'XETHZCAD', 'DASHXBT', 'XXLMXXBT', 
+                            'XETCZEUR', 'XMLNXXBT', 'BCHUSD', 'XICNXETH', 'XETHXXBT', 
+                            'XXRPXXBT', 'XETHZUSD', 'XXRPZEUR', 'EOSETH', 'DASHEUR', 
+                            'XICNXXBT', 'XETCZUSD', 'XETHZEUR', 'XZECXXBT', 'DASHUSD', 
+                            'XXBTZUSD', 'BCHXBT', 'USDTZUSD']
+
+        self.currency = ''
+        self.volume = 0
+        self.fees = {}
+        self.fees_maker = {}
+        
+    def get_method(self):
+        return "TradeVolume"
+
+    def get_dict_data(self):
+        assets = ''.join([asset + ',' for asset in self.asset_pair_list])
+        assets = assets[0:len(assets)-1]
+        self.dict.update({'pair':assets})
+        return self.dict
+
+    def validate_response(self, response):
+        if not super(Request_Trade_Volume, self).validate_response(response):
+            return False
+        else:
+            self.currency = response['result']['currency']
+            self.volume = response['result']['volume']
+            self.fees = response['result']['fees']
+            self.fees_maker = response['result']['fees_maker']
             return True

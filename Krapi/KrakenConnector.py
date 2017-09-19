@@ -27,8 +27,7 @@ import base64
 import hmac
 import json
 import time
-from CredentialMgr import CredentialMgr
-import RequestMgr
+from CredentialMgr import Credential_Mgr
 from Request import Request
 
 class Kraken_Connector(object):

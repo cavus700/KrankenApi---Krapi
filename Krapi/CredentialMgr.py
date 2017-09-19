@@ -25,7 +25,7 @@ import os, random, struct
 import json
 from Crypto.Cipher import AES
 
-class CredentialMgr(object):
+class Credential_Mgr(object):
     """
     Encrypts and decrypts kraken api keys and provides credentials for requests
 

@@ -21,7 +21,7 @@
 #SOFTWARE.
 
 from threading import Timer, Lock
-from CredentialMgr import CredentialMgr
+from CredentialMgr import Credential_Mgr
 from KrakenConnector import Kraken_Connector
 from Request import Request
 
@@ -86,7 +86,7 @@ class Request_Mgr(object):
         """
 
         if cred_mgr:
-            if isinstance(cred_mgr, CredentialMgr) and cred_mgr.get_credentials() != None:
+            if isinstance(cred_mgr, Credential_Mgr) and cred_mgr.get_credentials() != None:
                 self._credentials = cred_mgr
                 self._credentials_set = True
                 return True
